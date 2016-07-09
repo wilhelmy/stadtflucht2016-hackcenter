@@ -13,6 +13,8 @@ ser = serial.Serial(
     bytesize=serial.EIGHTBITS
 )
 
+ledCount = 10
+
 def gamma (x):
 	if x==0:
 		return 0
@@ -34,7 +36,7 @@ def sendFrame(time):
 	#print(int(gamma(brightness))*255, "!")
 			brightness_byte = int(gamma(brightness)*255)
 			data.append(brightness_byte)
-	data.append("\n")
+	data.append(ord("\n"))
 	ser.write(data)
 
 startTime = time.time()
