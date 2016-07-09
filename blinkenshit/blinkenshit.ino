@@ -1,27 +1,22 @@
-#include "Adafruit_WS2801.h"
+#include "Adafruit_NeoPixel.h"
 
 #include "SPI.h" // Comment out this line if using Trinket or Gemma
 #ifdef __AVR_ATtiny85__
  #include <avr/power.h>
 #endif
 
-// Choose which 2 pins you will use for output.
-// Can be any valid output pins.
-// The colors of the wires may be totally different so
-// BE SURE TO CHECK YOUR PIXELS TO SEE WHICH WIRES TO USE!
-uint8_t dataPin  = 12;    // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 13;    // Green wire on Adafruit Pixels
-uint8_t ledCount = 33;
+#define DATA_PIN 13
+#define LED_COUNT 33
 
 void rainbow(uint8_t wait);
 uint32_t Wheel(byte WheelPos);
 
-char[] inData;
+char inData[LED_COUNT*3+1];
 
 int frameNumber = 0;
 unsigned char test = 70;
 
-Adafruit_WS2801 strip = Adafruit_WS2801(ledCount, dataPin, clockPin);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, DATA_PIN, NEO_GRB + NEO_KHZ800);
 
 // Optional: leave off pin numbers to use hardware SPI
 // (pinout is then specific to each board and can't be changed)
@@ -37,30 +32,27 @@ void setup() {
   // Update LED contents, to start they are all 'off'
   strip.show();
   Serial.begin(9600);
-  
 }
 
 
 void loop() {
-  for (int i = 0; Serial.available > 0; i++) {
+  for (int i = 0; Serial.available() > 0; i++) {
     char c = Serial.read();
     if (c == '\n') break;
     inData[i] = c;
   }
     
-  for (int i=0; i<ledCount; i++){
-      int offset = i*3;
-      if (frameNumber % 2) {
-        strip.setPixelColor(i, inData[offset], inData[offset+1], inData[offset+2]);
-      } else {
-        strip.setPixelColor(i, 0, 0, 0);
-
-      }
+  for (int i=0; i<LED_COUNT; i++){
+    int offset = i*3;
+    if (frameNumber % 2) {
+      strip.setPixelColor(i, inData[offset], inData[offset+1], inData[offset+2]);
+    } else {
+      strip.setPixelColor(i, 0, 0, 0);
     }
   }
- strip.show();
- delay(36);
- frameNumber ++;
+  strip.show();
+  delay(36);
+  frameNumber++;
 }
 
 void rainbow(uint8_t wait) {
