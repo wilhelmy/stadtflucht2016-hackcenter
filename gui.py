@@ -7,7 +7,7 @@ class GUI:
         self.root = Tk()
         self.labels = []
         for i in xrange(num_labels):
-            l=Label(self.root)
+            l=Label(self.root, width=10, height=5)
             l.grid(row=0, column=i)
             self.labels.append(l)
 
