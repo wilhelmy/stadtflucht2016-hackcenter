@@ -27,20 +27,25 @@ if __name__ == '__main__':
     #plt.ion();
 
     i=0
+    oldsum=0
     #for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
     def callback():
-        global i
+        global i, oldsum
         i += 1
         data = stream.read(CHUNK)
         #if i % 10 != 0: continue
         data = np.fromstring(data, 'Float32')
         fft_data = np.fft.fft(data)
 
-        l = len(fft_data)/2
-        a, b = l-20, l+20
+        #l = len(fft_data)/2
+        #a, b = l-20, l+20
         sum = 0
-        for i in range(a,b):
+        for i in range(len(fft_data)):
             sum += fft_data[i]
+            sum -= oldsum
+            sum /= 15
+            oldsum = sum
+
         nleds = min(ledCount, math.floor(math.sqrt(sum.real*sum.real + sum.imag*sum.imag)))
         for i in range(ledCount):
             if i < nleds:
