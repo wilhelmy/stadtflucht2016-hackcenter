@@ -12,27 +12,45 @@ FORMAT = pa.paFloat32
 CHANNELS = 1
 RATE = 44100
 RECORD_SECONDS = 10
+ledCount = 20
 
 if __name__ == '__main__':
 
     p = pa.PyAudio()
-    #gui = GUI(10,)
+    gui = GUI(ledCount)
     stream = p.open(format=FORMAT,
                 channels=CHANNELS,
                 rate=RATE,
                 input=True,
                 frames_per_buffer=CHUNK)
 
-    plt.ion();
+    #plt.ion();
 
     i=0
     #for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-    while True:
+    def callback():
+        global i
         i += 1
         data = stream.read(CHUNK)
-        if i % 10 != 0: continue
+        #if i % 10 != 0: continue
         data = np.fromstring(data, 'Float32')
         fft_data = np.fft.fft(data)
+
+        l = len(fft_data)/2
+        a, b = l-20, l+20
+        sum = 0
+        for i in range(a,b):
+            sum += fft_data[i]
+        nleds = min(ledCount, math.floor(math.sqrt(sum.real*sum.real + sum.imag*sum.imag)))
+        for i in range(ledCount):
+            if i < nleds:
+                gui.color(i, "#ffffff")
+            else:
+                gui.color(i, "#000000")
+
+        gui.after(16, callback)
+
+        return
 
         freq = np.fft.fftfreq(fft_data.shape[-1])
         plt.plot(freq, fft_data.real, freq, fft_data.imag)
@@ -42,6 +60,8 @@ if __name__ == '__main__':
         #frames.append(data)
         #print(fft_data)
 
+    callback()
+    gui.mainloop()
     stream.stop_stream()
     stream.close()
     p.terminate()
