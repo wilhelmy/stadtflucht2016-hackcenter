@@ -12,15 +12,6 @@ CHANNELS = 1
 RATE = 44100
 RECORD_SECONDS = 10
 
-ser = serial.Serial(
-    port='/dev/ttyACM1',
-    baudrate=9600,
-    timeout=1,
-    parity=serial.PARITY_NONE,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS
-)
-
 stream = p.open(format=FORMAT,
                 channels=CHANNELS,
                 rate=RATE,
